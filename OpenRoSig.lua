@@ -5,9 +5,9 @@ local Signals = require(script.SignalData)
 local Config = require(script.Config)
 local Blocks = {}
 local Reservations = {} -- Sorted by hitter.
+local HittersBlocks = {}
 
 local RunService = game:GetService('RunService')
-
 
 
 -- Functions --
@@ -17,6 +17,23 @@ local Functions = {}
 -- Wait a bit between operations.
 Functions.Wait2 = function()
 	--RunService.Heartbeat:Wait()
+end
+
+
+
+Functions.ReturnBlocks = function(signalName)
+	local Signal = Signals[signalName]
+	local tempBlock = Signal.Block
+
+	if type(tempBlock) == "string" then
+		return {tempBlock}
+	end
+
+
+	if type(tempBlock) == "table" then
+		return tempBlock
+	end
+
 end
 
 
@@ -50,8 +67,11 @@ end
 Functions.CheckState = function(SignalName)
 	local Signal = Signals[SignalName]
 
-	if Blocks[Signal.Block].HitterCount > 0 then
-		return 1 -- Set to red unconditionally
+
+	for _, block in pairs(Functions.ReturnBlocks(SignalName)) do
+		if Blocks[block].HitterCount > 0 then
+			return 1
+		end
 	end
 
 	local State = #Config.States -- Start at the highest state and go down through each next signal
